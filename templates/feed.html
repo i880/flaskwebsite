@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camera Feed</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+
+        .button {
+            background-color: #4CAF50; /* Green */
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 10px;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
+        .input-box {
+            margin: 10px;
+            padding: 10px;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        img {
+            margin-top: 20px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Live Camera Feed with Pose Estimation</h1>
+        <div class="input-box">
+            <label for="seriesInput">Number of Series:</label>
+            <input type="number" id="seriesInput" min="1" value="1">
+        </div>
+        <div class="input-box">
+            <label for="repsInput">Number of Reps per Series:</label>
+            <input type="number" id="repsInput" min="1" value="1">
+        </div>
+        <button id="startBtn" class="button" onclick="startCamera()">Start Exercise</button>
+        <button id="stopBtn" class="button" onclick="stopCamera()" style="display: none;">Stop Exercise</button>
+        <img id="cameraFeed" src="" width="640" height="480" style="display: none;">
+    </div>
+
+    <script>
+        let isCameraOn = false;
+
+        function startCamera() {
+            const numSeries = document.getElementById('seriesInput').value;
+            const numReps = document.getElementById('repsInput').value;
+
+            fetch('/toggle_camera', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ numSeries: numSeries, numReps: numReps })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'started') {
+                    document.getElementById('cameraFeed').src = "{{ url_for('video_feed') }}";
+                    document.getElementById('cameraFeed').style.display = 'block';
+                    document.getElementById('startBtn').style.display = 'none';
+                    document.getElementById('stopBtn').style.display = 'inline-block';
+                    isCameraOn = true;
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function stopCamera() {
+            fetch('/toggle_camera', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'stopped') {
+                    document.getElementById('cameraFeed').src = '';
+                    document.getElementById('cameraFeed').style.display = 'none';
+                    document.getElementById('startBtn').style.display = 'inline-block';
+                    document.getElementById('stopBtn').style.display = 'none';
+                    isCameraOn = false;
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>
