@@ -13,3 +13,6 @@
  ## run the code 
  `run flask`
  
+ # deploy in local host 
+ 
+ ` Running on http://127.0.0.1:5000`
