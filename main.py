@@ -9,7 +9,7 @@ mp_drawing = mp.solutions.drawing_utils
 
 app = Flask(__name__)
 
-# Initialize the webcam (0 is the default camera)
+
 camera = None
 camera_active = None
 
